@@ -352,7 +352,7 @@ ngrok.kill()
 
 # --- Step 2: Clear Streamlit's cache ---
 # This deletes any cached versions of your old app
-!rm -rf /root/.streamlit
+
 
 # --- Step 3: Relaunch the app ---
 NGROK_AUTH_TOKEN = "32xM4cXu3Ra4NNeS0ZiDEJlrLTm_7gt27FWWw7wxLRCpBD6BH"
