@@ -288,7 +288,7 @@ print("\nModel saved successfully to your Google Drive!")
 #     elif password:
 #         st.error("Incorrect password.")
 
-!rm -rf pages
+
 
 # Commented out IPython magic to ensure Python compatibility.
 # # --- Create the 'pages' directory first ---
