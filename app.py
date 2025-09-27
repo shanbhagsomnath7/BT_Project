@@ -179,8 +179,6 @@ print(f"\nFinal accuracy on the test set: {accuracy*100:.2f}%")
 model.save('/content/drive/MyDrive/BrainTumorProject/brain_tumor_model.h5')
 print("\nModel saved successfully to your Google Drive!")
 
-!pip install streamlit pyngrok
-
 # Commented out IPython magic to ensure Python compatibility.
 # %%writefile app.py
 # import streamlit as st
