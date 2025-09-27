@@ -4,8 +4,13 @@ import numpy as np
 import cv2
 from tensorflow.keras.models import load_model
 
-# --- Page Configuration ---
-st.set_page_config(page_title="Brain Tumor AI", layout="wide")
+# --- Page Configuration (NEW UI CODE) ---
+st.set_page_config(
+    page_title="Brain Tumor AI",
+    page_icon="🧠",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 # --- Preprocessing Function ---
 def preprocess_image(image):
@@ -31,7 +36,7 @@ uploaded_file = st.file_uploader("Choose an MRI image...", type=["jpg", "jpeg", 
 
 if uploaded_file is not None:
     image = Image.open(uploaded_file)
-
+    
     col1, col2 = st.columns(2)
     with col1:
         st.image(image, caption='Uploaded MRI.', use_column_width=True)
