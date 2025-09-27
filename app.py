@@ -7,9 +7,6 @@ Original file is located at
     https://colab.research.google.com/drive/1cGr9dvuInMhiEyKGtR-iPEpY2d0hfUIX
 """
 
-
-drive.mount('/content/drive')
-
 # Step 1: Import necessary libraries
 import os
 import random
