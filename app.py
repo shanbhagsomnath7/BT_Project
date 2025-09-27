@@ -360,4 +360,4 @@ ngrok.set_auth_token(NGROK_AUTH_TOKEN)
 
 public_url = ngrok.connect(8501)
 print(' * Tunnel URL:', public_url)
-!streamlit run app.py --server.port 8501
+
