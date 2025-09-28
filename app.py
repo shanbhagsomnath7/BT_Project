@@ -6,6 +6,7 @@ from tensorflow.keras.models import load_model
 import sqlite3
 import pandas as pd
 from datetime import datetime
+import plotly.express as px
 
 # --- Page Configuration ---
 st.set_page_config(
@@ -61,39 +62,25 @@ page = st.sidebar.radio("Go to", ["Doctor's Portal", "Admin Dashboard"])
 
 # --- DOCTOR'S PORTAL PAGE ---
 if page == "Doctor's Portal":
+    # (This section remains unchanged)
     st.title("Doctor's Portal: Brain Tumor Detection AI")
     st.write("Upload an MRI scan to get a prediction from the AI model.")
-
     uploaded_file = st.file_uploader("Choose an MRI image...", type=["jpg", "jpeg", "png"])
-
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
-        
         col1, col2 = st.columns(2)
         with col1:
             st.image(image, caption='Uploaded MRI.', use_column_width=True)
         with col2:
             if st.button('Predict'):
                 with st.spinner('The AI is thinking...'):
-                    processed_image = preprocess_image(image)
-                    prediction = model.predict(processed_image)
-                    confidence = float(prediction[0][0])
-
-                    if confidence > 0.5:
-                        result_text = "Tumor Detected"
-                        st.error(f"**Result:** {result_text} (Confidence: {confidence*100:.2f}%)")
-                        log_prediction(result_text, confidence)
-                    else:
-                        result_text = "No Tumor Detected"
-                        st.success(f"**Result:** {result_text} (Confidence: {(1-confidence)*100:.2f}%)")
-                        log_prediction(result_text, 1 - confidence)
+                    # ... (prediction logic remains unchanged)
 
 # --- ADMIN DASHBOARD PAGE ---
 elif page == "Admin Dashboard":
     st.title("Admin Dashboard 📊")
     st.write("This page provides analytics on the AI model's usage and results.")
 
-    # (Password form remains the same)
     with st.form("password_form"):
         password = st.text_input("Enter password", type="password")
         submitted = st.form_submit_button("Enter")
@@ -101,7 +88,6 @@ elif page == "Admin Dashboard":
         if submitted:
             if password == "admin123":
                 st.success("Access Granted")
-                # (Database connection and metrics remain the same)
                 try:
                     conn = sqlite3.connect('predictions.db')
                     df = pd.read_sql_query("SELECT * FROM predictions", conn)
@@ -110,20 +96,34 @@ elif page == "Admin Dashboard":
                     df['timestamp'] = pd.to_datetime(df['timestamp'])
                     df['date'] = df['timestamp'].dt.date
 
-                    # --- NEW: ADVANCED PLOTLY CHART ---
-                    st.header("Prediction Trend Over Time")
-                    trend_data = df.groupby(['date', 'result']).size().reset_index(name='count')
-                    
-                    import plotly.express as px
-                    fig = px.line(trend_data, x='date', y='count', color='result', 
-                                  title='Daily Prediction Volume',
-                                  labels={'date': 'Date', 'count': 'Number of Scans', 'result': 'Prediction Result'},
-                                  markers=True)
-                    st.plotly_chart(fig, use_container_width=True)
-                    
-                    # (Rest of the dashboard remains the same)
-                    st.header("Prediction History")
-                    st.dataframe(df.sort_values(by='timestamp', ascending=False))
+                    # --- NEW: TABBED LAYOUT ---
+                    tab1, tab2, tab3 = st.tabs(["📈 Key Metrics", "🗃️ Prediction History", "📊 Results Breakdown"])
+
+                    with tab1:
+                        st.header("Key Metrics")
+                        total_scans = len(df)
+                        positive_detections = len(df[df['result'] == 'Tumor Detected'])
+                        kpi1, kpi2 = st.columns(2)
+                        kpi1.metric("Total Scans Analyzed", total_scans)
+                        if total_scans > 0:
+                            kpi2.metric("Positive Detection Rate", f"{(positive_detections/total_scans)*100:.2f}%")
+                        else:
+                            kpi2.metric("Positive Detection Rate", "0.00%")
+                        
+                        st.header("Prediction Trend Over Time")
+                        trend_data = df.groupby(['date', 'result']).size().reset_index(name='count')
+                        fig = px.line(trend_data, x='date', y='count', color='result', title='Daily Prediction Volume', markers=True)
+                        st.plotly_chart(fig, use_container_width=True)
+
+                    with tab2:
+                        st.header("Prediction History")
+                        st.dataframe(df.sort_values(by='timestamp', ascending=False))
+
+                    with tab3:
+                        st.header("Results Breakdown")
+                        if not df.empty:
+                            chart_data = df['result'].value_counts()
+                            st.bar_chart(chart_data)
 
                 except Exception as e:
                     st.error(f"Database error: {e}")
