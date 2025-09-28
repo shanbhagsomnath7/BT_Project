@@ -23,7 +23,7 @@ st.markdown("""
     .main {
         background-color: #0E1117;
     }
-    /* Glassmorphism effect for containers */
+    /* Glassmorphism effect for main containers */
     div.st-emotion-cache-183lzff {
         background: rgba(40, 40, 60, 0.6);
         border-radius: 16px;
@@ -32,6 +32,7 @@ st.markdown("""
         -webkit-backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.3);
         padding: 2rem;
+        margin-bottom: 1rem;
     }
     /* Sidebar styling */
     .css-1d391kg {
@@ -121,11 +122,27 @@ elif page == "Admin Dashboard":
                 df['date'] = df['timestamp'].dt.date
                 tab1, tab2, tab3 = st.tabs(["📈 Key Metrics", "🗃️ Prediction History", "📊 Results Breakdown"])
                 with tab1:
-                    # (Admin Tab 1 content...)
+                    st.header("Key Metrics")
+                    total_scans = len(df)
+                    positive_detections = len(df[df['result'] == 'Tumor Detected'])
+                    kpi1, kpi2 = st.columns(2)
+                    kpi1.metric("Total Scans Analyzed", total_scans)
+                    if total_scans > 0:
+                        kpi2.metric("Positive Detection Rate", f"{(positive_detections/total_scans)*100:.2f}%")
+                    else:
+                        kpi2.metric("Positive Detection Rate", "0.00%")
+                    st.header("Prediction Trend Over Time")
+                    trend_data = df.groupby(['date', 'result']).size().reset_index(name='count')
+                    fig = px.line(trend_data, x='date', y='count', color='result', title='Daily Prediction Volume', markers=True)
+                    st.plotly_chart(fig, use_container_width=True)
                 with tab2:
-                    # (Admin Tab 2 content...)
+                    st.header("Prediction History")
+                    st.dataframe(df.sort_values(by='timestamp', ascending=False))
                 with tab3:
-                    # (Admin Tab 3 content...)
+                    st.header("Results Breakdown")
+                    if not df.empty:
+                        chart_data = df['result'].value_counts()
+                        st.bar_chart(chart_data)
             except Exception as e:
                 st.error(f"Database error: {e}")
         elif password:
