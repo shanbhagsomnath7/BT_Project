@@ -8,7 +8,7 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 
-# --- Page Configuration ---
+# --- Page Configuration with Custom Theme ---
 st.set_page_config(
     page_title="Brain Tumor AI",
     page_icon="🧠",
@@ -62,6 +62,7 @@ page = st.sidebar.radio("Go to", ["Doctor's Portal", "Admin Dashboard"])
 
 # --- DOCTOR'S PORTAL PAGE ---
 if page == "Doctor's Portal":
+    # (This section remains unchanged)
     st.title("Doctor's Portal: Brain Tumor Detection AI")
     st.write("Upload an MRI scan to get a prediction from the AI model.")
     uploaded_file = st.file_uploader("Choose an MRI image...", type=["jpg", "jpeg", "png"])
@@ -91,7 +92,6 @@ elif page == "Admin Dashboard":
     st.title("Admin Dashboard 📊")
     st.write("This page provides analytics on the AI model's usage and results.")
 
-    # CORRECTED INDENTATION IN THIS SECTION
     with st.form("password_form"):
         password = st.text_input("Enter password", type="password")
         submitted = st.form_submit_button("Enter")
