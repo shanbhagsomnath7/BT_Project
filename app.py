@@ -93,7 +93,7 @@ elif page == "Admin Dashboard":
     st.title("Admin Dashboard 📊")
     st.write("This page provides analytics on the AI model's usage and results.")
 
-    # --- NEW: FORM FOR PASSWORD ---
+    # (Password form remains the same)
     with st.form("password_form"):
         password = st.text_input("Enter password", type="password")
         submitted = st.form_submit_button("Enter")
@@ -101,27 +101,31 @@ elif page == "Admin Dashboard":
         if submitted:
             if password == "admin123":
                 st.success("Access Granted")
+                # (Database connection and metrics remain the same)
                 try:
                     conn = sqlite3.connect('predictions.db')
                     df = pd.read_sql_query("SELECT * FROM predictions", conn)
                     conn.close()
-
-                    st.header("Key Metrics")
-                    total_scans = len(df)
-                    positive_detections = len(df[df['result'] == 'Tumor Detected'])
                     
-                    kpi1, kpi2 = st.columns(2)
-                    kpi1.metric("Total Scans Analyzed", total_scans)
-                    if total_scans > 0:
-                        kpi2.metric("Positive Detection Rate", f"{(positive_detections/total_scans)*100:.2f}%")
-                    else:
-                        kpi2.metric("Positive Detection Rate", "0.00%")
+                    df['timestamp'] = pd.to_datetime(df['timestamp'])
+                    df['date'] = df['timestamp'].dt.date
 
+                    # --- NEW: ADVANCED PLOTLY CHART ---
+                    st.header("Prediction Trend Over Time")
+                    trend_data = df.groupby(['date', 'result']).size().reset_index(name='count')
+                    
+                    import plotly.express as px
+                    fig = px.line(trend_data, x='date', y='count', color='result', 
+                                  title='Daily Prediction Volume',
+                                  labels={'date': 'Date', 'count': 'Number of Scans', 'result': 'Prediction Result'},
+                                  markers=True)
+                    st.plotly_chart(fig, use_container_width=True)
+                    
+                    # (Rest of the dashboard remains the same)
                     st.header("Prediction History")
                     st.dataframe(df.sort_values(by='timestamp', ascending=False))
 
                 except Exception as e:
                     st.error(f"Database error: {e}")
-
-            elif password and password != "":
+            elif password:
                 st.error("Incorrect password.")
